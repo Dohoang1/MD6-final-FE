@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaShoppingCart, FaEdit, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ProductList.css';
 
 function ProductList() {
@@ -104,8 +106,9 @@ function ProductList() {
             try {
                 await axios.delete(`http://localhost:8080/api/products/${id}`);
                 fetchProducts();
+                toast.success('Xóa sản phẩm thành công!');
             } catch (err) {
-                alert('Có lỗi xảy ra khi xóa sản phẩm');
+                toast.error('Có lỗi xảy ra khi xóa sản phẩm');
             }
         }
     };

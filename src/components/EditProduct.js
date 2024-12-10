@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaSave, FaImage, FaTimes } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './EditProduct.css';
 
 function EditProduct() {
@@ -131,8 +133,10 @@ function EditProduct() {
             );
 
             navigate(`/product/${id}`);
+            toast.success('Sản phẩm đã được cập nhật thành công!');
         } catch (err) {
             setError(err.response?.data || 'Có lỗi xảy ra khi cập nhật sản phẩm');
+            toast.error('Có lỗi xảy ra khi cập nhật sản phẩm');
             setSaving(false);
         }
     };

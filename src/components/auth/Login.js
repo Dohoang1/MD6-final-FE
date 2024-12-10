@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Auth.css';
 
 function Login() {
@@ -32,13 +34,16 @@ function Login() {
             // Thêm token vào header mặc định cho các request sau này
             axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
             
+            // Hiển thị thông báo thành công
+            toast.success('Đăng nhập thành công!');
+            
             // Chuyển hướng về trang chủ
             navigate('/');
             
             // Reload trang để cập nhật Layout
             window.location.reload();
         } catch (err) {
-            setError(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+            toast.error(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
     };
 

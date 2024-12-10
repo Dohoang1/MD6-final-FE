@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaSave, FaImage } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './AddProduct.css';
 
 function AddProduct() {
@@ -98,9 +100,12 @@ function AddProduct() {
                 }
             });
 
+            toast.success('Thêm sản phẩm mới thành công!');
+            
             navigate('/');
         } catch (err) {
             setError(err.response?.data || 'Có lỗi xảy ra khi thêm sản phẩm');
+            toast.error('Có lỗi xảy ra khi thêm sản phẩm');
             setSaving(false);
         }
     };
@@ -164,7 +169,7 @@ function AddProduct() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="category">Danh mục:</label>
+                    <label htmlFor="category">Danh m���c:</label>
                     <div className="category-input-group">
                         <select
                             value={showCustomInput ? 'custom' : category}

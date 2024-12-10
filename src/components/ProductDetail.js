@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaShoppingCart, FaEdit, FaTrash, FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ProductDetail.css';
 
 function ProductDetail() {
@@ -49,9 +51,13 @@ function ProductDetail() {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
                 await axios.delete(`http://localhost:8080/api/products/${id}`);
+                
+                // Hiển thị thông báo thành công
+                toast.success('Xóa sản phẩm thành công!');
+                
                 navigate('/');
             } catch (err) {
-                alert('Có lỗi xảy ra khi xóa sản phẩm');
+                toast.error('Có lỗi xảy ra khi xóa sản phẩm');
             }
         }
     };
@@ -63,9 +69,9 @@ function ProductDetail() {
         try {
             // Thay thế bằng API thêm vào giỏ hàng thực tế
             await axios.post(`http://localhost:8080/api/cart/add/${id}`);
-            alert('Đã thêm sản phẩm vào giỏ hàng');
+            toast.success('Đã thêm sản phẩm vào giỏ hàng');
         } catch (err) {
-            alert('Có lỗi xảy ra khi thêm v��o giỏ hàng');
+            toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
         } finally {
             setAddingToCart(false);
         }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './Auth.css';
 
 function Register() {
@@ -36,7 +38,7 @@ function Register() {
             setError('Mật khẩu phải có ít nhất 6 ký tự');
             return false;
         }
-        // Kiểm tra email hợp l��
+        // Kiểm tra email hợp lệ
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setError('Email không hợp lệ');
@@ -79,14 +81,14 @@ function Register() {
 
             if (response.data) {
                 // Đăng ký thành công
-                alert('Đăng ký thành công! Vui lòng đăng nhập.');
+                toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
                 navigate('/login');
             }
         } catch (err) {
             console.error('Registration error:', err); // Log chi tiết lỗi
             console.error('Error response:', err.response); // Log response lỗi
             
-            setError(
+            toast.error(
                 err.response?.data?.message || 
                 err.response?.data || 
                 err.message || 

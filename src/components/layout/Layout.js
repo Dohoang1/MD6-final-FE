@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaUserCircle } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -39,6 +40,9 @@ function Layout({ children }) {
         setUser(null);
         setShowDropdown(false);
         navigate('/login');
+        
+        // Hiển thị thông báo thành công
+        toast.success('Đăng xuất thành công!');
     };
 
     const handleSearch = (e) => {
