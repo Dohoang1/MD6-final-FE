@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaArrowLeft, FaSave, FaImage } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaImage, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AddProduct.css';
@@ -35,7 +35,6 @@ function AddProduct() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/products');
-            // Extract unique categories from products
             const uniqueCategories = [...new Set(response.data.map(product => product.category))];
             setCategories(uniqueCategories);
         } catch (err) {
@@ -101,7 +100,6 @@ function AddProduct() {
             });
 
             toast.success('Thêm sản phẩm mới thành công!');
-            
             navigate('/');
         } catch (err) {
             setError(err.response?.data || 'Có lỗi xảy ra khi thêm sản phẩm');
@@ -110,26 +108,10 @@ function AddProduct() {
         }
     };
 
-    // Cleanup function for previews
-    useEffect(() => {
-        return () => {
-            previews.forEach(preview => URL.revokeObjectURL(preview));
-        };
-    }, [previews]);
-
     return (
-        <div className="add-product">
-            <div className="add-product-header">
-                <h2>Thêm sản phẩm mới</h2>
-                <Link to="/" className="back-link tooltip">
-                    <FaArrowLeft /> Quay lại
-                    <span className="tooltip-text">Quay về trang danh sách</span>
-                </Link>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            <form onSubmit={handleSubmit} className="add-form">
+        <div className="add-product-container">
+            <h2>Thêm Sản Phẩm Mới</h2>
+            <form onSubmit={handleSubmit} className="add-product-form">
                 <div className="form-group">
                     <label htmlFor="name">Tên sản phẩm:</label>
                     <input
@@ -169,7 +151,7 @@ function AddProduct() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="category">Danh m���c:</label>
+                    <label htmlFor="category">Danh mục:</label>
                     <div className="category-input-group">
                         <select
                             value={showCustomInput ? 'custom' : category}
@@ -223,7 +205,7 @@ function AddProduct() {
                                         className="remove-image"
                                         onClick={() => removeFile(index)}
                                     >
-                                        ×
+                                        <FaTimes />
                                     </button>
                                 </div>
                             ))}
