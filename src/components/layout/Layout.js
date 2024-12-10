@@ -82,11 +82,28 @@ function Layout({ children }) {
                                     </button>
                                     {showDropdown && (
                                         <div className="dropdown-menu">
-                                            {user.role === 'PROVIDER' && (
-                                                <Link to="/add-product">Thêm sản phẩm</Link>
+                                            {(user.role === 'PROVIDER' || user.role === 'ADMIN') && (
+                                                <Link 
+                                                    to="/add-product" 
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    Thêm sản phẩm
+                                                </Link>
                                             )}
-                                            <Link to="/profile">Thông tin cá nhân</Link>
-                                            <button onClick={handleLogout}>Đăng xuất</button>
+                                            <Link 
+                                                to="/profile" 
+                                                onClick={() => setShowDropdown(false)}
+                                            >
+                                                Thông tin cá nhân
+                                            </Link>
+                                            <button 
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setShowDropdown(false);
+                                                }}
+                                            >
+                                                Đăng xuất
+                                            </button>
                                         </div>
                                     )}
                                 </div>
