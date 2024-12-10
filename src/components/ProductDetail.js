@@ -13,10 +13,22 @@ function ProductDetail() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addingToCart, setAddingToCart] = useState(false);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         fetchProductDetail();
     }, [id]);
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+    }, []);
+
+    const canEditProduct = () => {
+        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+    };
 
     const fetchProductDetail = async () => {
         try {
@@ -53,7 +65,7 @@ function ProductDetail() {
             await axios.post(`http://localhost:8080/api/cart/add/${id}`);
             alert('Đã thêm sản phẩm vào giỏ hàng');
         } catch (err) {
-            alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            alert('Có lỗi xảy ra khi thêm v��o giỏ hàng');
         } finally {
             setAddingToCart(false);
         }
@@ -97,22 +109,24 @@ function ProductDetail() {
                             <Link to="/" className="back-link">
                                 <FaArrowLeft /> <span>Quay lại</span>
                             </Link>
-                            <div className="product-actions">
-                                <button 
-                                    className="action-btn edit-btn"
-                                    onClick={handleEdit}
-                                    title="Sửa sản phẩm"
-                                >
-                                    <FaEdit />
-                                </button>
-                                <button 
-                                    className="action-btn delete-btn"
-                                    onClick={handleDelete}
-                                    title="Xóa sản phẩm"
-                                >
-                                    <FaTrash />
-                                </button>
-                            </div>
+                            {canEditProduct() && (
+                                <div className="product-actions">
+                                    <button 
+                                        className="action-btn edit-btn"
+                                        onClick={handleEdit}
+                                        title="Sửa sản phẩm"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button 
+                                        className="action-btn delete-btn"
+                                        onClick={handleDelete}
+                                        title="Xóa sản phẩm"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 

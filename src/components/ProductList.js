@@ -20,6 +20,19 @@ function ProductList() {
     const sortOption = searchParams.get('sort') || 'newest';
     const searchTerm = searchParams.get('search') || '';
 
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+    }, []);
+
+    const canEditProduct = () => {
+        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+    };
+
     const getSortParams = (option) => {
         switch(option) {
             case 'newest':
@@ -188,20 +201,24 @@ function ProductList() {
                                 >
                                     <FaShoppingCart />
                                 </button>
-                                <button 
-                                    className="action-btn edit-btn"
-                                    onClick={() => handleEdit(product.id)}
-                                    title="Sửa sản phẩm"
-                                >
-                                    <FaEdit />
-                                </button>
-                                <button 
-                                    className="action-btn delete-btn"
-                                    onClick={() => handleDelete(product.id)}
-                                    title="Xóa sản phẩm"
-                                >
-                                    <FaTrash />
-                                </button>
+                                {canEditProduct() && (
+                                    <>
+                                        <button 
+                                            className="action-btn edit-btn"
+                                            onClick={() => handleEdit(product.id)}
+                                            title="Sửa sản phẩm"
+                                        >
+                                            <FaEdit />
+                                        </button>
+                                        <button 
+                                            className="action-btn delete-btn"
+                                            onClick={() => handleDelete(product.id)}
+                                            title="Xóa sản phẩm"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

@@ -1,19 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaUserCircle } from 'react-icons/fa';
 import './Layout.css';
 
 function Layout({ children }) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [user, setUser] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
+    const dropdownRef = React.useRef(null);
+
+    useEffect(() => {
+        // Lấy thông tin user từ localStorage
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+
+        // Đảm bảo event listener được thêm vào document
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        // Thêm event listener
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Cleanup function
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []); // Empty dependency array
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+        setShowDropdown(false);
+        navigate('/login');
+    };
 
     const handleSearch = (e) => {
         e.preventDefault();
-        console.log('Search submitted:', searchTerm);
         if (searchTerm.trim()) {
             const currentSort = new URLSearchParams(window.location.search).get('sort') || 'newest';
             const searchUrl = `/?search=${encodeURIComponent(searchTerm.trim())}&sort=${currentSort}`;
-            console.log('Navigating to:', searchUrl);
             navigate(searchUrl);
         }
     };
@@ -39,7 +71,31 @@ function Layout({ children }) {
                             </button>
                         </form>
                         <nav className="nav-links">
-                            <Link to="/add-product" className="nav-link">Thêm sản phẩm</Link>
+                            {user ? (
+                                <div className="user-dropdown" ref={dropdownRef}>
+                                    <button 
+                                        className="dropdown-trigger"
+                                        onClick={() => setShowDropdown(!showDropdown)}
+                                    >
+                                        <FaUserCircle />
+                                        <span>{user.username}</span>
+                                    </button>
+                                    {showDropdown && (
+                                        <div className="dropdown-menu">
+                                            {user.role === 'PROVIDER' && (
+                                                <Link to="/add-product">Thêm sản phẩm</Link>
+                                            )}
+                                            <Link to="/profile">Thông tin cá nhân</Link>
+                                            <button onClick={handleLogout}>Đăng xuất</button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="nav-link">Đăng nhập</Link>
+                                    <Link to="/register" className="nav-link">Đăng ký</Link>
+                                </>
+                            )}
                         </nav>
                     </div>
                 </div>

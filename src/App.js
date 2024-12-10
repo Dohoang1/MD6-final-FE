@@ -5,6 +5,8 @@ import ProductList from './components/ProductList';
 import AddProduct from './components/AddProduct';
 import ProductDetail from './components/ProductDetail';
 import EditProduct from './components/EditProduct';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register.js';
 
 function App() {
     return (
@@ -26,6 +28,10 @@ function App() {
                             <h2>404 - Không tìm thấy trang</h2>
                         </div>
                     } />
+                    
+                    {/* Thêm routes mới */}
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                 </Routes>
             </Layout>
         </Router>
