@@ -1,19 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaUserCircle } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
 import './Layout.css';
 
 function Layout({ children }) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
+    const dropdownRef = useRef(null);
+    const { user, logout } = useAuth();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+        toast.success('Đăng xuất thành công!');
+    };
 
     const handleSearch = (e) => {
         e.preventDefault();
-        console.log('Search submitted:', searchTerm);
         if (searchTerm.trim()) {
             const currentSort = new URLSearchParams(window.location.search).get('sort') || 'newest';
             const searchUrl = `/?search=${encodeURIComponent(searchTerm.trim())}&sort=${currentSort}`;
-            console.log('Navigating to:', searchUrl);
             navigate(searchUrl);
         }
     };
@@ -39,7 +62,48 @@ function Layout({ children }) {
                             </button>
                         </form>
                         <nav className="nav-links">
-                            <Link to="/add-product" className="nav-link">Thêm sản phẩm</Link>
+                            {user ? (
+                                <div className="user-dropdown" ref={dropdownRef}>
+                                    <button 
+                                        className="dropdown-trigger"
+                                        onClick={() => setShowDropdown(!showDropdown)}
+                                    >
+                                        <FaUserCircle />
+                                        <span>{user.username}</span>
+                                    </button>
+                                    {showDropdown && (
+                                        <div className="dropdown-menu">
+                                            {(user.role === 'PROVIDER' || user.role === 'ADMIN') && (
+                                                <Link 
+                                                    to="/add-product" 
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    Thêm sản phẩm
+                                                </Link>
+                                            )}
+                                            <Link 
+                                                to="/profile" 
+                                                onClick={() => setShowDropdown(false)}
+                                            >
+                                                Thông tin cá nhân
+                                            </Link>
+                                            <button 
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setShowDropdown(false);
+                                                }}
+                                            >
+                                                Đăng xuất
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <>
+                                    <Link to="/login" className="nav-link">Đăng nhập</Link>
+                                    <Link to="/register" className="nav-link">Đăng ký</Link>
+                                </>
+                            )}
                         </nav>
                     </div>
                 </div>

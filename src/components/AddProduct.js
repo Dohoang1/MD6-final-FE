@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaArrowLeft, FaSave, FaImage } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaImage, FaTimes } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './AddProduct.css';
+
+// Tạo instance mới của axios
+const api = axios.create();
+
+// Thêm interceptor
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 function AddProduct() {
     const navigate = useNavigate();
@@ -33,7 +52,6 @@ function AddProduct() {
     const fetchCategories = async () => {
         try {
             const response = await axios.get('http://localhost:8080/api/products');
-            // Extract unique categories from products
             const uniqueCategories = [...new Set(response.data.map(product => product.category))];
             setCategories(uniqueCategories);
         } catch (err) {
@@ -76,55 +94,58 @@ function AddProduct() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (saving) return;
-
+        
         try {
             setSaving(true);
             setError(null);
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                toast.error('Vui lòng đăng nhập để thêm sản phẩm');
+                navigate('/login');
+                return;
+            }
 
             const formData = new FormData();
-            formData.append('name', name.trim());
+            formData.append('name', name);
             formData.append('price', price);
             formData.append('quantity', quantity);
-            formData.append('description', description.trim());
-            formData.append('category', category.trim());
-
+            formData.append('description', description);
+            formData.append('category', category);
+            
             files.forEach(file => {
                 formData.append('files', file);
             });
 
-            await axios.post('http://localhost:8080/api/products', formData, {
+            console.log('Sending request with token:', token); // Debug log
+
+            const response = await api.post('http://localhost:8080/api/products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
+            toast.success('Thêm sản phẩm thành công!');
             navigate('/');
         } catch (err) {
-            setError(err.response?.data || 'Có lỗi xảy ra khi thêm sản phẩm');
+            console.error('Error:', err);
+            if (err.response?.status === 401) {
+                localStorage.removeItem('token');
+                toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                navigate('/login');
+            } else {
+                setError(err.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+                toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+            }
+        } finally {
             setSaving(false);
         }
     };
 
-    // Cleanup function for previews
-    useEffect(() => {
-        return () => {
-            previews.forEach(preview => URL.revokeObjectURL(preview));
-        };
-    }, [previews]);
-
     return (
-        <div className="add-product">
-            <div className="add-product-header">
-                <h2>Thêm sản phẩm mới</h2>
-                <Link to="/" className="back-link tooltip">
-                    <FaArrowLeft /> Quay lại
-                    <span className="tooltip-text">Quay về trang danh sách</span>
-                </Link>
-            </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            <form onSubmit={handleSubmit} className="add-form">
+        <div className="add-product-container">
+            <h2>Thêm Sản Phẩm Mới</h2>
+            <form onSubmit={handleSubmit} className="add-product-form">
                 <div className="form-group">
                     <label htmlFor="name">Tên sản phẩm:</label>
                     <input
@@ -218,7 +239,7 @@ function AddProduct() {
                                         className="remove-image"
                                         onClick={() => removeFile(index)}
                                     >
-                                        ×
+                                        <FaTimes />
                                     </button>
                                 </div>
                             ))}

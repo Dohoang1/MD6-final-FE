@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaShoppingCart, FaEdit, FaTrash } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ProductList.css';
 
 function ProductList() {
@@ -19,6 +21,19 @@ function ProductList() {
 
     const sortOption = searchParams.get('sort') || 'newest';
     const searchTerm = searchParams.get('search') || '';
+
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+    }, []);
+
+    const canEditProduct = () => {
+        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+    };
 
     const getSortParams = (option) => {
         switch(option) {
@@ -91,8 +106,9 @@ function ProductList() {
             try {
                 await axios.delete(`http://localhost:8080/api/products/${id}`);
                 fetchProducts();
+                toast.success('Xóa sản phẩm thành công!');
             } catch (err) {
-                alert('Có lỗi xảy ra khi xóa sản phẩm');
+                toast.error('Có lỗi xảy ra khi xóa sản phẩm');
             }
         }
     };
@@ -188,20 +204,24 @@ function ProductList() {
                                 >
                                     <FaShoppingCart />
                                 </button>
-                                <button 
-                                    className="action-btn edit-btn"
-                                    onClick={() => handleEdit(product.id)}
-                                    title="Sửa sản phẩm"
-                                >
-                                    <FaEdit />
-                                </button>
-                                <button 
-                                    className="action-btn delete-btn"
-                                    onClick={() => handleDelete(product.id)}
-                                    title="Xóa sản phẩm"
-                                >
-                                    <FaTrash />
-                                </button>
+                                {canEditProduct() && (
+                                    <>
+                                        <button 
+                                            className="action-btn edit-btn"
+                                            onClick={() => handleEdit(product.id)}
+                                            title="Sửa sản phẩm"
+                                        >
+                                            <FaEdit />
+                                        </button>
+                                        <button 
+                                            className="action-btn delete-btn"
+                                            onClick={() => handleDelete(product.id)}
+                                            title="Xóa sản phẩm"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

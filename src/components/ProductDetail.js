@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaShoppingCart, FaEdit, FaTrash, FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './ProductDetail.css';
 
 function ProductDetail() {
@@ -13,17 +15,31 @@ function ProductDetail() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addingToCart, setAddingToCart] = useState(false);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         fetchProductDetail();
     }, [id]);
 
+    useEffect(() => {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            setUser(JSON.parse(userStr));
+        }
+    }, []);
+
+    const canEditProduct = () => {
+        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+    };
+
     const fetchProductDetail = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/products/${id}`);
+            console.log('Product detail response:', response.data);
             setProduct(response.data);
             setLoading(false);
         } catch (err) {
+            console.error('Error fetching product:', err);
             setError('Có lỗi xảy ra khi tải chi tiết sản phẩm');
             setLoading(false);
         }
@@ -37,9 +53,13 @@ function ProductDetail() {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
                 await axios.delete(`http://localhost:8080/api/products/${id}`);
+                
+                // Hiển thị thông báo thành công
+                toast.success('Xóa sản phẩm thành công!');
+                
                 navigate('/');
             } catch (err) {
-                alert('Có lỗi xảy ra khi xóa sản phẩm');
+                toast.error('Có lỗi xảy ra khi xóa sản phẩm');
             }
         }
     };
@@ -51,9 +71,9 @@ function ProductDetail() {
         try {
             // Thay thế bằng API thêm vào giỏ hàng thực tế
             await axios.post(`http://localhost:8080/api/cart/add/${id}`);
-            alert('Đã thêm sản phẩm vào giỏ hàng');
+            toast.success('Đã thêm sản phẩm vào giỏ hàng');
         } catch (err) {
-            alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
         } finally {
             setAddingToCart(false);
         }
@@ -91,28 +111,31 @@ function ProductDetail() {
         <div className="product-detail">
             {product && (
                 <>
+                    {console.log('Current product state:', product)}
                     <div className="product-detail-header">
                         <h2>{product.name}</h2>
                         <div className="header-actions">
                             <Link to="/" className="back-link">
                                 <FaArrowLeft /> <span>Quay lại</span>
                             </Link>
-                            <div className="product-actions">
-                                <button 
-                                    className="action-btn edit-btn"
-                                    onClick={handleEdit}
-                                    title="Sửa sản phẩm"
-                                >
-                                    <FaEdit />
-                                </button>
-                                <button 
-                                    className="action-btn delete-btn"
-                                    onClick={handleDelete}
-                                    title="Xóa sản phẩm"
-                                >
-                                    <FaTrash />
-                                </button>
-                            </div>
+                            {canEditProduct() && (
+                                <div className="product-actions">
+                                    <button 
+                                        className="action-btn edit-btn"
+                                        onClick={handleEdit}
+                                        title="Sửa sản phẩm"
+                                    >
+                                        <FaEdit />
+                                    </button>
+                                    <button 
+                                        className="action-btn delete-btn"
+                                        onClick={handleDelete}
+                                        title="Xóa sản phẩm"
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -181,6 +204,13 @@ function ProductDetail() {
                                     <div className="description-content">
                                         {product.description}
                                     </div>
+                                </div>
+
+                                <div className="info-group">
+                                    <span className="info-label">Người bán:</span>
+                                    <span className="seller-info">
+                                        {product.sellerUsername ? product.sellerUsername : 'Không có thông tin người bán'}
+                                    </span>
                                 </div>
 
                                 <div className="product-purchase-info">
