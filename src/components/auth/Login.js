@@ -37,11 +37,8 @@ function Login() {
             // Hiển thị thông báo thành công
             toast.success('Đăng nhập thành công!');
             
-            // Chuyển hướng về trang chủ
+            // Chỉ cần navigate, không cần reload
             navigate('/');
-            
-            // Reload trang để cập nhật Layout
-            window.location.reload();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
