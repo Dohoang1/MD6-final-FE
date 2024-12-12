@@ -35,9 +35,11 @@ function ProductDetail() {
     const fetchProductDetail = async () => {
         try {
             const response = await axios.get(`http://localhost:8080/api/products/${id}`);
+            console.log('Product detail response:', response.data);
             setProduct(response.data);
             setLoading(false);
         } catch (err) {
+            console.error('Error fetching product:', err);
             setError('Có lỗi xảy ra khi tải chi tiết sản phẩm');
             setLoading(false);
         }
@@ -109,6 +111,7 @@ function ProductDetail() {
         <div className="product-detail">
             {product && (
                 <>
+                    {console.log('Current product state:', product)}
                     <div className="product-detail-header">
                         <h2>{product.name}</h2>
                         <div className="header-actions">
@@ -201,6 +204,13 @@ function ProductDetail() {
                                     <div className="description-content">
                                         {product.description}
                                     </div>
+                                </div>
+
+                                <div className="info-group">
+                                    <span className="info-label">Người bán:</span>
+                                    <span className="seller-info">
+                                        {product.sellerUsername ? product.sellerUsername : 'Không có thông tin người bán'}
+                                    </span>
                                 </div>
 
                                 <div className="product-purchase-info">

@@ -6,6 +6,23 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AddProduct.css';
 
+// Tạo instance mới của axios
+const api = axios.create();
+
+// Thêm interceptor
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 function AddProduct() {
     const navigate = useNavigate();
     
@@ -77,33 +94,50 @@ function AddProduct() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (saving) return;
-
+        
         try {
             setSaving(true);
             setError(null);
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                toast.error('Vui lòng đăng nhập để thêm sản phẩm');
+                navigate('/login');
+                return;
+            }
 
             const formData = new FormData();
-            formData.append('name', name.trim());
+            formData.append('name', name);
             formData.append('price', price);
             formData.append('quantity', quantity);
-            formData.append('description', description.trim());
-            formData.append('category', category.trim());
-
+            formData.append('description', description);
+            formData.append('category', category);
+            
             files.forEach(file => {
                 formData.append('files', file);
             });
 
-            await axios.post('http://localhost:8080/api/products', formData, {
+            console.log('Sending request with token:', token); // Debug log
+
+            const response = await api.post('http://localhost:8080/api/products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
-            toast.success('Thêm sản phẩm mới thành công!');
+            toast.success('Thêm sản phẩm thành công!');
             navigate('/');
         } catch (err) {
-            setError(err.response?.data || 'Có lỗi xảy ra khi thêm sản phẩm');
-            toast.error('Có lỗi xảy ra khi thêm sản phẩm');
+            console.error('Error:', err);
+            if (err.response?.status === 401) {
+                localStorage.removeItem('token');
+                toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                navigate('/login');
+            } else {
+                setError(err.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+                toast.error(err.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm');
+            }
+        } finally {
             setSaving(false);
         }
     };

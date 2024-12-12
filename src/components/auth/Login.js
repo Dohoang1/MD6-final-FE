@@ -29,21 +29,22 @@ function Login() {
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', formData);
             
-            // Lưu token và user info vào localStorage
-            localStorage.setItem('token', response.data.token);
+            const token = response.data.token;
+            if (!token) {
+                throw new Error('Token không hợp lệ');
+            }
+
+            // Lưu token
+            localStorage.setItem('token', token);
             
-            // Sử dụng context để cập nhật trạng thái đăng nhập
+            // Set token cho tất cả các request sau này
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
             login(response.data.user);
-            
-            // Thêm token vào header mặc định cho các request sau này
-            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-            
-            // Hiển thị thông báo thành công
             toast.success('Đăng nhập thành công!');
-            
-            // Chuyển hướng về trang chủ
             navigate('/');
         } catch (err) {
+            console.error('Login error:', err);
             toast.error(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
     };
