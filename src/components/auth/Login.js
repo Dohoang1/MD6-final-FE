@@ -4,8 +4,10 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Auth.css';
+import { useAuth } from '../../context/AuthContext';
 
 function Login() {
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -29,7 +31,9 @@ function Login() {
             
             // Lưu token và user info vào localStorage
             localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            
+            // Sử dụng context để cập nhật trạng thái đăng nhập
+            login(response.data.user);
             
             // Thêm token vào header mặc định cho các request sau này
             axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
@@ -37,7 +41,7 @@ function Login() {
             // Hiển thị thông báo thành công
             toast.success('Đăng nhập thành công!');
             
-            // Chỉ cần navigate, không cần reload
+            // Chuyển hướng về trang chủ
             navigate('/');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.');

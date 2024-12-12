@@ -1,47 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaUserCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
 import './Layout.css';
 
 function Layout({ children }) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [user, setUser] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
-    const dropdownRef = React.useRef(null);
+    const dropdownRef = useRef(null);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
-        // Lấy thông tin user từ localStorage
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            setUser(JSON.parse(userStr));
-        }
-
-        // Đảm bảo event listener được thêm vào document
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setShowDropdown(false);
             }
         };
 
-        // Thêm event listener
         document.addEventListener('mousedown', handleClickOutside);
 
-        // Cleanup function
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []); // Empty dependency array
+    }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        setShowDropdown(false);
+        logout();
         navigate('/login');
-        
-        // Hiển thị thông báo thành công
         toast.success('Đăng xuất thành công!');
     };
 
