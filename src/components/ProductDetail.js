@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { FaShoppingCart, FaEdit, FaTrash, FaArrowLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,14 +28,32 @@ function ProductDetail() {
         }
     }, []);
 
-    const canEditProduct = () => {
-        return user && (user.role === 'ADMIN' || user.role === 'SALESPERSON');
+    const canEditProduct = (product) => {
+        if (!user) return false;
+        
+        // ADMIN và SALESPERSON có thể sửa tất cả sản phẩm
+        if (user.role === 'ADMIN' || user.role === 'SALESPERSON') return true;
+        
+        // PROVIDER chỉ có thể sửa sản phẩm của mình
+        if (user.role === 'PROVIDER') {
+            return product.seller && product.seller.id === user.id;
+        }
+        
+        return false;
     };
 
     const fetchProductDetail = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/products/${id}`);
+            const response = await axiosInstance.get(`/api/products/${id}`);
             console.log('Product detail response:', response.data);
+            
+            if (response.data.seller) {
+                response.data.seller = {
+                    id: response.data.seller.id,
+                    username: response.data.sellerUsername
+                };
+            }
+            
             setProduct(response.data);
             setLoading(false);
         } catch (err) {
@@ -52,14 +70,15 @@ function ProductDetail() {
     const handleDelete = async () => {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
-                await axios.delete(`http://localhost:8080/api/products/${id}`);
-                
-                // Hiển thị thông báo thành công
+                await axiosInstance.delete(`/api/products/${id}`);
                 toast.success('Xóa sản phẩm thành công!');
-                
                 navigate('/');
             } catch (err) {
-                toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+                if (err.response?.status === 403) {
+                    toast.error('Bạn không có quyền xóa sản phẩm này');
+                } else {
+                    toast.error('Có lỗi xảy ra khi xóa sản phẩm');
+                }
             }
         }
     };
@@ -69,8 +88,7 @@ function ProductDetail() {
         
         setAddingToCart(true);
         try {
-            // Thay thế bằng API thêm vào giỏ hàng thực tế
-            await axios.post(`http://localhost:8080/api/cart/add/${id}`);
+            await axiosInstance.post(`/api/cart/add/${id}`);
             toast.success('Đã thêm sản phẩm vào giỏ hàng');
         } catch (err) {
             toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
@@ -118,7 +136,7 @@ function ProductDetail() {
                             <Link to="/" className="back-link">
                                 <FaArrowLeft /> <span>Quay lại</span>
                             </Link>
-                            {canEditProduct() && (
+                            {canEditProduct(product) && (
                                 <div className="product-actions">
                                     <button 
                                         className="action-btn edit-btn"
@@ -211,6 +229,17 @@ function ProductDetail() {
                                     <span className="seller-info">
                                         {product.sellerUsername ? product.sellerUsername : 'Không có thông tin người bán'}
                                     </span>
+                                </div>
+
+                                <div className="info-group">
+                                    <span className="info-label">Trạng thái:</span>
+                                    {product.status && (
+                                        <span className={`status-tag ${product.status.toLowerCase()}`}>
+                                            {product.status === 'PENDING' && 'Chờ duyệt'}
+                                            {product.status === 'APPROVED' && 'Đã duyệt'}
+                                            {product.status === 'REJECTED' && 'Đã từ chối'}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div className="product-purchase-info">

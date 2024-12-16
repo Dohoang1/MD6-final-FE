@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { FaArrowLeft, FaSave, FaImage, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -37,7 +37,7 @@ function EditProduct() {
 
     const fetchProduct = async () => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/products/${id}`);
+            const response = await axiosInstance.get(`/api/products/${id}`);
             const product = response.data;
             
             setName(product.name);
@@ -56,7 +56,7 @@ function EditProduct() {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/products');
+            const response = await axiosInstance.get('/api/products');
             const uniqueCategories = [...new Set(response.data.map(product => product.category))];
             setCategories(uniqueCategories);
         } catch (err) {
@@ -122,8 +122,8 @@ function EditProduct() {
                 formData.append('files', file);
             });
 
-            await axios.put(
-                `http://localhost:8080/api/products/${id}`, 
+            await axiosInstance.put(
+                `/api/products/${id}`, 
                 formData,
                 {
                     headers: {
