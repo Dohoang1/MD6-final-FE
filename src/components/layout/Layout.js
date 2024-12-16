@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaUserCircle } from 'react-icons/fa';
+import { FaSearch, FaUserCircle, FaShoppingCart } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import axiosInstance from '../../utils/axiosConfig';
 import './Layout.css';
+import { useCart } from '../../context/CartContext';
 
 function Layout({ children }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -11,6 +13,7 @@ function Layout({ children }) {
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
     const { user, logout } = useAuth();
+    const { cartItemCount, updateCartCount } = useCart();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -25,6 +28,12 @@ function Layout({ children }) {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            updateCartCount();
+        }
+    }, [user]);
 
     const handleLogout = () => {
         logout();
@@ -63,57 +72,65 @@ function Layout({ children }) {
                         </form>
                         <nav className="nav-links">
                             {user ? (
-                                <div className="user-dropdown" ref={dropdownRef}>
-                                    <button 
-                                        className="dropdown-trigger"
-                                        onClick={() => setShowDropdown(!showDropdown)}
-                                    >
-                                        <FaUserCircle />
-                                        <span>{user.username}</span>
-                                    </button>
-                                    {showDropdown && (
-                                        <div className="dropdown-menu">
-                                            {user.role === 'PROVIDER' && (
+                                <>
+                                    <Link to="/cart" className="cart-link">
+                                        <FaShoppingCart />
+                                        {cartItemCount > 0 && (
+                                            <span className="cart-badge">{cartItemCount}</span>
+                                        )}
+                                    </Link>
+                                    <div className="user-dropdown" ref={dropdownRef}>
+                                        <button 
+                                            className="dropdown-trigger"
+                                            onClick={() => setShowDropdown(!showDropdown)}
+                                        >
+                                            <FaUserCircle />
+                                            <span>{user.username}</span>
+                                        </button>
+                                        {showDropdown && (
+                                            <div className="dropdown-menu">
+                                                {user.role === 'PROVIDER' && (
+                                                    <Link 
+                                                        to="/register-product" 
+                                                        onClick={() => setShowDropdown(false)}
+                                                    >
+                                                        Đăng bán sản phẩm
+                                                    </Link>
+                                                )}
+                                                {user.role === 'ADMIN' && (
+                                                    <Link 
+                                                        to="/pending-products" 
+                                                        onClick={() => setShowDropdown(false)}
+                                                    >
+                                                        Duyệt sản phẩm đăng bán
+                                                    </Link>
+                                                )}
+                                                {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
+                                                    <Link 
+                                                        to="/add-product" 
+                                                        onClick={() => setShowDropdown(false)}
+                                                    >
+                                                        Thêm sản phẩm
+                                                    </Link>
+                                                )}
                                                 <Link 
-                                                    to="/register-product" 
+                                                    to="/profile" 
                                                     onClick={() => setShowDropdown(false)}
                                                 >
-                                                    Đăng bán sản phẩm
+                                                    Thông tin cá nhân
                                                 </Link>
-                                            )}
-                                            {user.role === 'ADMIN' && (
-                                                <Link 
-                                                    to="/pending-products" 
-                                                    onClick={() => setShowDropdown(false)}
+                                                <button 
+                                                    onClick={() => {
+                                                        handleLogout();
+                                                        setShowDropdown(false);
+                                                    }}
                                                 >
-                                                    Duyệt sản phẩm đăng bán
-                                                </Link>
-                                            )}
-                                            {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
-                                                <Link 
-                                                    to="/add-product" 
-                                                    onClick={() => setShowDropdown(false)}
-                                                >
-                                                    Thêm sản phẩm
-                                                </Link>
-                                            )}
-                                            <Link 
-                                                to="/profile" 
-                                                onClick={() => setShowDropdown(false)}
-                                            >
-                                                Thông tin cá nhân
-                                            </Link>
-                                            <button 
-                                                onClick={() => {
-                                                    handleLogout();
-                                                    setShowDropdown(false);
-                                                }}
-                                            >
-                                                Đăng xuất
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
+                                                    Đăng xuất
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
                             ) : (
                                 <>
                                     <Link to="/login" className="nav-link">Đăng nhập</Link>

@@ -230,18 +230,62 @@
 }
 
 .cart-btn {
-    background-color: #3498db;
-    color: white;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.cart-btn:hover:not(:disabled) {
-    background-color: #2980b9;
-    transform: translateY(-2px);
+.cart-btn.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.cart-btn .loading-spinner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .cart-btn:disabled {
-    background-color: #bdc3c7;
+    background-color: #ccc;
     cursor: not-allowed;
+}
+
+.cart-btn:disabled:hover {
+    background-color: #ccc;
+}
+
+/* Thêm tooltip cho nút disabled */
+.cart-btn:disabled::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.cart-btn:disabled:hover::after {
+    visibility: visible;
+    opacity: 1;
 }
 
 .edit-btn {

@@ -5,6 +5,7 @@ import { FaShoppingCart, FaEdit, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './ProductList.css';
+import { useCart } from '../context/CartContext';
 
 function ProductList() {
     const navigate = useNavigate();
@@ -23,6 +24,10 @@ function ProductList() {
     const searchTerm = searchParams.get('search') || '';
 
     const [user, setUser] = useState(null);
+
+    const [addingToCart, setAddingToCart] = useState({});
+
+    const { updateCartCount } = useCart();
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
@@ -210,6 +215,31 @@ function ProductList() {
         return buttons;
     };
 
+    const handleAddToCart = async (productId) => {
+        if (!user) {
+            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
+            navigate('/login');
+            return;
+        }
+
+        if (addingToCart[productId]) return;
+
+        setAddingToCart(prev => ({ ...prev, [productId]: true }));
+        try {
+            await axiosInstance.post(`/api/cart/add/${productId}`);
+            toast.success('Đã thêm sản phẩm vào giỏ hàng');
+            updateCartCount();
+        } catch (error) {
+            if (error.response?.status === 400) {
+                toast.error(error.response.data);
+            } else {
+                toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            }
+        } finally {
+            setAddingToCart(prev => ({ ...prev, [productId]: false }));
+        }
+    };
+
     if (loading) {
         return <div className="loading">Đang tải...</div>;
     }
@@ -285,11 +315,13 @@ function ProductList() {
                             </p>
                             <div className="product-actions">
                                 <button 
-                                    className="action-btn cart-btn"
-                                    disabled={product.quantity < 1}
-                                    title="Thêm vào giỏ hàng"
+                                    className={`action-btn cart-btn ${addingToCart[product.id] ? 'loading' : ''}`}
+                                    onClick={() => handleAddToCart(product.id)}
+                                    disabled={product.quantity < 1 || addingToCart[product.id]}
+                                    title={product.quantity < 1 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
                                 >
                                     <FaShoppingCart />
+                                    {addingToCart[product.id] && <span className="loading-spinner"></span>}
                                 </button>
                                 {canEditProduct(product) && (
                                     <>
