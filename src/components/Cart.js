@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaMinus, FaPlus, FaArrowLeft } from 'react-icons/fa';
 import axiosInstance from '../utils/axiosConfig';
 import { toast } from 'react-toastify';
@@ -7,6 +7,7 @@ import './Cart.css';
 import { useCart } from '../context/CartContext';
 
 function Cart() {
+    const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [total, setTotal] = useState(0);
@@ -162,7 +163,7 @@ function Cart() {
                         }).format(total)}
                     </span>
                 </div>
-                <button className="checkout-btn">
+                <button className="checkout-btn" onClick={() => navigate('/checkout')}>
                     Tiến hành thanh toán
                 </button>
                 <Link to="/" className="continue-shopping">
@@ -173,4 +174,4 @@ function Cart() {
     );
 }
 
-export default Cart; 
+export default Cart;

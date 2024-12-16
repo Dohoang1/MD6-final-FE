@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FaSearch, FaUserCircle, FaShoppingCart } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
@@ -11,6 +11,7 @@ function Layout({ children }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const dropdownRef = useRef(null);
     const { user, logout } = useAuth();
     const { cartItemCount, updateCartCount } = useCart();
@@ -33,7 +34,7 @@ function Layout({ children }) {
         if (user) {
             updateCartCount();
         }
-    }, [user]);
+    }, [user, location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -98,12 +99,20 @@ function Layout({ children }) {
                                                     </Link>
                                                 )}
                                                 {user.role === 'ADMIN' && (
-                                                    <Link 
-                                                        to="/pending-products" 
-                                                        onClick={() => setShowDropdown(false)}
-                                                    >
-                                                        Duyệt sản phẩm đăng bán
-                                                    </Link>
+                                                    <>
+                                                        <Link 
+                                                            to="/pending-products" 
+                                                            onClick={() => setShowDropdown(false)}
+                                                        >
+                                                            Duyệt sản phẩm đăng bán
+                                                        </Link>
+                                                        <Link 
+                                                            to="/admin/orders" 
+                                                            onClick={() => setShowDropdown(false)}
+                                                        >
+                                                            Quản lý đơn hàng
+                                                        </Link>
+                                                    </>
                                                 )}
                                                 {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
                                                     <Link 

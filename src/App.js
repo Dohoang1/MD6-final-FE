@@ -11,6 +11,9 @@ import { AuthProvider } from './context/AuthContext';
 import RegisterProduct from './components/RegisterProduct';
 import PendingProducts from './components/PendingProducts';
 import Cart from './components/Cart';
+import Checkout from './components/Checkout';
+import OrderManagement from './components/admin/OrderManagement';
+import PrivateAdminRoute from './components/auth/PrivateAdminRoute';
 import { CartProvider } from './context/CartContext';
 
 function App() {
@@ -29,19 +32,31 @@ function App() {
                             <Route path="/products" element={<ProductList />} />
                             <Route path="/" element={<ProductList />} />
                             
-                            {/* Có thể thêm route cho 404 Not Found */}
+                            {/* Routes cho người dùng */}
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/register-product" element={<RegisterProduct />} />
+                            <Route path="/cart" element={<Cart />} />
+                            <Route path="/checkout" element={<Checkout />} />
+                            
+                            {/* Routes cho admin */}
+                            <Route path="/pending-products" element={
+                                <PrivateAdminRoute>
+                                    <PendingProducts />
+                                </PrivateAdminRoute>
+                            } />
+                            <Route path="/admin/orders" element={
+                                <PrivateAdminRoute>
+                                    <OrderManagement />
+                                </PrivateAdminRoute>
+                            } />
+                            
+                            {/* Route cho 404 Not Found */}
                             <Route path="*" element={
                                 <div className="not-found">
                                     <h2>404 - Không tìm thấy trang</h2>
                                 </div>
                             } />
-                            
-                            {/* Thêm routes mới */}
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/register" element={<Register />} />
-                            <Route path="/register-product" element={<RegisterProduct />} />
-                            <Route path="/pending-products" element={<PendingProducts />} />
-                            <Route path="/cart" element={<Cart />} />
                         </Routes>
                     </Layout>
                 </Router>
