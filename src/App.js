@@ -8,6 +8,8 @@ import EditProduct from './components/EditProduct';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register.js';
 import { AuthProvider } from './context/AuthContext';
+import RegisterProduct from './components/RegisterProduct';
+import PendingProducts from './components/PendingProducts';
 
 function App() {
     return (
@@ -34,6 +36,8 @@ function App() {
                         {/* Thêm routes mới */}
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                        <Route path="/register-product" element={<RegisterProduct />} />
+                        <Route path="/pending-products" element={<PendingProducts />} />
                     </Routes>
                 </Layout>
             </Router>

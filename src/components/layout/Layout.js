@@ -73,7 +73,23 @@ function Layout({ children }) {
                                     </button>
                                     {showDropdown && (
                                         <div className="dropdown-menu">
-                                            {(user.role === 'PROVIDER' || user.role === 'ADMIN') && (
+                                            {user.role === 'PROVIDER' && (
+                                                <Link 
+                                                    to="/register-product" 
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    Đăng bán sản phẩm
+                                                </Link>
+                                            )}
+                                            {user.role === 'ADMIN' && (
+                                                <Link 
+                                                    to="/pending-products" 
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    Duyệt sản phẩm đăng bán
+                                                </Link>
+                                            )}
+                                            {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
                                                 <Link 
                                                     to="/add-product" 
                                                     onClick={() => setShowDropdown(false)}

@@ -29,7 +29,7 @@ function ProductDetail() {
     }, []);
 
     const canEditProduct = () => {
-        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+        return user && (user.role === 'ADMIN' || user.role === 'SALESPERSON');
     };
 
     const fetchProductDetail = async () => {
