@@ -73,7 +73,7 @@ function Layout({ children }) {
                                     </button>
                                     {showDropdown && (
                                         <div className="dropdown-menu">
-                                            {(user.role === 'PROVIDER' || user.role === 'ADMIN') && (
+                                            {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
                                                 <Link 
                                                     to="/add-product" 
                                                     onClick={() => setShowDropdown(false)}

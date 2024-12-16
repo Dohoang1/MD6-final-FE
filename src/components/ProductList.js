@@ -32,7 +32,7 @@ function ProductList() {
     }, []);
 
     const canEditProduct = () => {
-        return user && (user.role === 'ADMIN' || user.role === 'PROVIDER');
+        return user && (user.role === 'ADMIN' || user.role === 'SALESPERSON');
     };
 
     const getSortParams = (option) => {
@@ -286,7 +286,7 @@ function ProductList() {
                                         <button 
                                             className="action-btn edit-btn"
                                             onClick={() => handleEdit(product.id)}
-                                            title="Sửa sản phẩm"
+                                            title="Sửa s���n phẩm"
                                         >
                                             <FaEdit />
                                         </button>
