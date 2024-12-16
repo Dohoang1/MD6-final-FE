@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { FaShoppingCart, FaEdit, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -31,8 +31,18 @@ function ProductList() {
         }
     }, []);
 
-    const canEditProduct = () => {
-        return user && (user.role === 'ADMIN' || user.role === 'SALESPERSON');
+    const canEditProduct = (product) => {
+        if (!user) return false;
+        
+        // ADMIN và SALESPERSON có thể sửa tất cả sản phẩm
+        if (user.role === 'ADMIN' || user.role === 'SALESPERSON') return true;
+        
+        // PROVIDER chỉ có thể sửa sản phẩm của mình
+        if (user.role === 'PROVIDER') {
+            return product.seller && product.seller.id === user.id;
+        }
+        
+        return false;
     };
 
     const getSortParams = (option) => {
@@ -59,7 +69,7 @@ function ProductList() {
             
             console.log('Fetching products with URL:', url);
             
-            const response = await axios.get(url);
+            const response = await axiosInstance.get(url);
             console.log('API Response:', response.data);
             
             setProducts(response.data.content);
@@ -105,7 +115,7 @@ function ProductList() {
     const handleDelete = async (id) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
-                await axios.delete(`http://localhost:8080/api/products/${id}`);
+                await axiosInstance.delete(`/api/products/${id}`);
                 fetchProducts();
                 toast.success('Xóa sản phẩm thành công!');
             } catch (err) {
@@ -281,12 +291,12 @@ function ProductList() {
                                 >
                                     <FaShoppingCart />
                                 </button>
-                                {canEditProduct() && (
+                                {canEditProduct(product) && (
                                     <>
                                         <button 
                                             className="action-btn edit-btn"
                                             onClick={() => handleEdit(product.id)}
-                                            title="Sửa s���n phẩm"
+                                            title="Sửa sản phẩm"
                                         >
                                             <FaEdit />
                                         </button>

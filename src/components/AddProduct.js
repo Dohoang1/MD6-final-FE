@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosConfig';
 import { FaArrowLeft, FaSave, FaImage, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AddProduct.css';
 
-// Tạo instance mới của axios
-const api = axios.create();
-
 // Thêm interceptor
-api.interceptors.request.use(
+axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -51,7 +48,7 @@ function AddProduct() {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/products');
+            const response = await axiosInstance.get('/api/products');
             const uniqueCategories = [...new Set(response.data.map(product => product.category))];
             setCategories(uniqueCategories);
         } catch (err) {
@@ -119,7 +116,7 @@ function AddProduct() {
 
             console.log('Sending request with token:', token); // Debug log
 
-            const response = await api.post('http://localhost:8080/api/products', formData, {
+            const response = await axiosInstance.post('/api/products', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
