@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FaSearch, FaUserCircle, FaShoppingCart } from 'react-icons/fa';
+import { FaSearch, FaUserCircle, FaShoppingCart, FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
@@ -151,11 +151,82 @@ function Layout({ children }) {
                 </div>
             </header>
 
+            <div className="sub-navbar">
+                <div className="sub-navbar-container">
+                    <div className="sub-navbar-left">
+                        <a href="tel:1900.1234" className="sub-nav-item">
+                            <i className="fas fa-phone"></i> Gọi mua hàng: 1900.1234
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-shopping-cart"></i> Mua Hàng Online
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-map-marker-alt"></i> Miền Bắc
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-map-marker-alt"></i> Miền Trung
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-map-marker-alt"></i> Miền Nam
+                        </a>
+                    </div>
+                    <div className="sub-navbar-right">
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-comment"></i> Feedback
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-search"></i> Tìm cửa hàng gần nhất
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-question-circle"></i> Hỗ trợ
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-info-circle"></i> Trung tâm dịch vụ
+                        </a>
+                        <a href="#" className="sub-nav-item">
+                            <i className="fas fa-gift"></i> Khuyến mại
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <main className="main-content">
                 {children}
             </main>
 
             <footer className="footer">
+                <div className="footer-top">
+                    <div className="footer-info-container">
+                        <div className="footer-info-item">
+                            <FaPhone className="footer-icon" />
+                            <div className="footer-info-text">
+                                <h4>Hotline</h4>
+                                <p>1900 1234</p>
+                            </div>
+                        </div>
+                        <div className="footer-info-item">
+                            <FaEnvelope className="footer-icon" />
+                            <div className="footer-info-text">
+                                <h4>Email</h4>
+                                <p>support@unitrade.com</p>
+                            </div>
+                        </div>
+                        <div className="footer-info-item">
+                            <FaMapMarkerAlt className="footer-icon" />
+                            <div className="footer-info-text">
+                                <h4>Địa chỉ</h4>
+                                <p>Hà Nội, Việt Nam</p>
+                            </div>
+                        </div>
+                        <div className="footer-info-item">
+                            <FaClock className="footer-icon" />
+                            <div className="footer-info-text">
+                                <h4>Giờ làm việc</h4>
+                                <p>8:00 - 22:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div className="footer-container">
                     <div className="footer-section">
                         <h3>Về chúng tôi</h3>
@@ -173,6 +244,26 @@ function Layout({ children }) {
                             <a href="#" className="social-link">Instagram</a>
                             <a href="#" className="social-link">Twitter</a>
                         </div>
+                    </div>
+                    <div className="footer-section">
+                        <h3>Hỗ trợ khách hàng</h3>
+                        <p><Link to="/tra-cuu-don-hang">Tra cứu đơn hàng</Link></p>
+                        <p><Link to="/huong-dan-mua-hang">Hướng dẫn mua hàng trực tuyến</Link></p>
+                        <p><Link to="/huong-dan-thanh-toan">Hướng dẫn thanh toán</Link></p>
+                        <p><Link to="/huong-dan-tra-gop">Hướng dẫn mua hàng trả góp</Link></p>
+                        <p><Link to="/bang-gia">Bảng giá vật tư và dịch vụ sửa chữa lắp đặt</Link></p>
+                        <p><Link to="/hoa-don">In hóa đơn điện tử</Link></p>
+                        <p><Link to="/gop-y">Góp ý, khiếu nại</Link></p>
+                    </div>
+                    <div className="footer-section">
+                        <h3>Chính sách chung</h3>
+                        <p><Link to="/chinh-sach-chung">Chính sách, quy định chung</Link></p>
+                        <p><Link to="/chinh-sach-bao-hanh">Chính sách bảo hành</Link></p>
+                        <p><Link to="/chinh-sach-doanh-nghiep">Chính sách cho doanh nghiệp</Link></p>
+                        <p><Link to="/chinh-sach-hang-chinh-hang">Chính sách hàng chính hãng</Link></p>
+                        <p><Link to="/bao-mat">Bảo mật thông tin khách hàng</Link></p>
+                        <p><Link to="/chinh-sach-nhap-lai">Chính sách nhập lại tính phí</Link></p>
+                        <p><Link to="/chinh-sach-giao-hang">Chính sách giao hàng</Link></p>
                     </div>
                 </div>
                 <div className="footer-bottom">
