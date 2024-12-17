@@ -464,3 +464,61 @@
     background-color: #f8f9fa;
     border-radius: 4px;
 }
+
+.product-list-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.sidebar-container {
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.filter-sidebar {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    position: sticky;
+    top: 20px;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-section h3 {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.filter-section li {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.filter-section li:hover {
+    background-color: #f5f6fa;
+}
+
+.filter-section li.active {
+    background-color: #3498db;
+    color: white;
+}
+
+.main-content {
+    flex-grow: 1;
+}

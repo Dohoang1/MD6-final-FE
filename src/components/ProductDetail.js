@@ -225,9 +225,9 @@ function ProductDetail() {
                                 </div>
 
                                 <div className="info-group">
-                                    <span className="info-label">Người bán:</span>
+                                    <span className="info-label">Nhà Cung Cấp:</span>
                                     <span className="seller-info">
-                                        {product.sellerUsername ? product.sellerUsername : 'Không có thông tin người bán'}
+                                        {product.sellerUsername ? product.sellerUsername : 'Không có thông tin Nhà Cung Cấp'}
                                     </span>
                                 </div>
 

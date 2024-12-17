@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import axiosInstance from '../utils/axiosConfig';
-import { FaShoppingCart, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaShoppingCart, FaEdit, FaTrash, FaFilter } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './ProductList.css';
@@ -13,6 +13,8 @@ function ProductList() {
     const [searchParams, setSearchParams] = useSearchParams();
     
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [sellers, setSellers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -22,9 +24,10 @@ function ProductList() {
 
     const sortOption = searchParams.get('sort') || 'newest';
     const searchTerm = searchParams.get('search') || '';
+    const selectedCategory = searchParams.get('category') || '';
+    const selectedSeller = searchParams.get('seller') || '';
 
     const [user, setUser] = useState(null);
-
     const [addingToCart, setAddingToCart] = useState({});
 
     const { updateCartCount } = useCart();
@@ -63,6 +66,29 @@ function ProductList() {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const response = await axiosInstance.get('http://localhost:8080/api/products/categories');
+            setCategories(response.data);
+        } catch (err) {
+            console.error('Lỗi khi lấy danh sách danh mục:', err);
+        }
+    };
+
+    const fetchSellers = async () => {
+        try {
+            const response = await axiosInstance.get('http://localhost:8080/api/products/sellers');
+            setSellers(response.data);
+        } catch (err) {
+            console.error('Lỗi khi lấy danh sách thương hiệu:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchCategories();
+        fetchSellers();
+    }, []);
+
     const fetchProducts = async () => {
         try {
             const sortParam = getSortParams(sortOption);
@@ -70,6 +96,12 @@ function ProductList() {
             
             if (searchTerm) {
                 url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+            if (selectedCategory) {
+                url += `&category=${encodeURIComponent(selectedCategory)}`;
+            }
+            if (selectedSeller) {
+                url += `&seller=${encodeURIComponent(selectedSeller)}`;
             }
             
             console.log('Fetching products with URL:', url);
@@ -240,6 +272,32 @@ function ProductList() {
         }
     };
 
+    const handleCategoryFilter = (category) => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            if (category) {
+                newParams.set('category', category);
+            } else {
+                newParams.delete('category');
+            }
+            newParams.set('page', '0');
+            return newParams;
+        });
+    };
+
+    const handleSellerFilter = (seller) => {
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            if (seller) {
+                newParams.set('seller', seller);
+            } else {
+                newParams.delete('seller');
+            }
+            newParams.set('page', '0');
+            return newParams;
+        });
+    };
+
     if (loading) {
         return <div className="loading">Đang tải...</div>;
     }
@@ -249,106 +307,152 @@ function ProductList() {
     }
 
     return (
-<div className="product-list">
-        <div className="list-header">
-            <h2 className="page-title">
-                {searchTerm ? `Kết quả tìm kiếm cho "${searchTerm}"` : 'Danh sách sản phẩm'}
-            </h2>
-            <div className="sort-container">
-                <select 
-                    value={sortOption}
-                    onChange={handleSortChange}
-                    className="sort-select"
-                >
-                    <option value="newest">Mới nhất</option>
-                    <option value="priceAsc">Giá tăng dần</option>
-                    <option value="priceDesc">Giá giảm dần</option>
-                </select>
-            </div>
-        </div>
-
-        {searchTerm && (
-            <p className="search-results">
-                Tìm thấy {totalElements} sản phẩm
-            </p>
-        )}
-
-        <div className="products-grid">
-            {products.map(product => (
-                <div key={product.id} className="product-card">
-                    <Link 
-                        to={`/product/${product.id}`} 
-                        className="product-link tooltip" 
-                        data-tooltip={product.description}
-                    >
-                        <div className="product-image-container">
-                            <img 
-                                src={`http://localhost:8080/uploads/${product.imageUrls[0]}`} 
-                                alt={product.name}
-                                onError={(e) => {
-                                    e.target.src = 'https://via.placeholder.com/300';
-                                }}
-                            />
-                        </div>
-                    </Link>
-                    <div className="product-info">
-                        <Link 
-                            to={`/product/${product.id}`} 
-                            className="product-name-link tooltip" 
-                            data-tooltip={product.description}
-                        >
-                            <h3>{product.name}</h3>
-                        </Link>
-                            <span className="product-category">{product.category}</span>
-                            <div className="product-status">
-                                {product.quantity > 0 ? (
-                                    <span className="in-stock">Còn hàng</span>
-                                ) : (
-                                    <span className="out-of-stock">Hết hàng</span>
-                                )}
-                            </div>
-                            <p className="product-price">
-                                {new Intl.NumberFormat('vi-VN', {
-                                    style: 'currency',
-                                    currency: 'VND'
-                                }).format(product.price)}
-                            </p>
-                            <div className="product-actions">
-                                <button 
-                                    className={`action-btn cart-btn ${addingToCart[product.id] ? 'loading' : ''}`}
-                                    onClick={() => handleAddToCart(product.id)}
-                                    disabled={product.quantity < 1 || addingToCart[product.id]}
-                                    title={product.quantity < 1 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
+        <div className="product-list-container">
+            <div className="sidebar-container">
+                <div className="filter-sidebar">
+                    <div className="filter-section">
+                        <h3><FaFilter /> Danh mục</h3>
+                        <ul>
+                            <li
+                                className={!selectedCategory ? 'active' : ''}
+                                onClick={() => handleCategoryFilter('')}
+                            >
+                                Tất cả
+                            </li>
+                            {categories.map(category => (
+                                <li
+                                    key={category}
+                                    className={selectedCategory === category ? 'active' : ''}
+                                    onClick={() => handleCategoryFilter(category)}
                                 >
-                                    <FaShoppingCart />
-                                    {addingToCart[product.id] && <span className="loading-spinner"></span>}
-                                </button>
-                                {canEditProduct(product) && (
-                                    <>
-                                        <button 
-                                            className="action-btn edit-btn"
-                                            onClick={() => handleEdit(product.id)}
-                                            title="Sửa sản phẩm"
-                                        >
-                                            <FaEdit />
-                                        </button>
-                                        <button 
-                                            className="action-btn delete-btn"
-                                            onClick={() => handleDelete(product.id)}
-                                            title="Xóa sản phẩm"
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </>
-                                )}
+                                    {category}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="filter-section">
+                        <h3><FaFilter /> Thương hiệu</h3>
+                        <ul>
+                            <li
+                                className={!selectedSeller ? 'active' : ''}
+                                onClick={() => handleSellerFilter('')}
+                            >
+                                Tất cả
+                            </li>
+                            {sellers.map(seller => (
+                                <li
+                                    key={seller}
+                                    className={selectedSeller === seller ? 'active' : ''}
+                                    onClick={() => handleSellerFilter(seller)}
+                                >
+                                    {seller}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div className="main-content">
+                <div className="list-header">
+                    <h2 className="page-title">
+                        {searchTerm ? `Kết quả tìm kiếm cho "${searchTerm}"` : 'Danh sách sản phẩm'}
+                    </h2>
+                    <div className="sort-container">
+                        <select 
+                            value={sortOption}
+                            onChange={handleSortChange}
+                            className="sort-select"
+                        >
+                            <option value="newest">Mới nhất</option>
+                            <option value="priceAsc">Giá tăng dần</option>
+                            <option value="priceDesc">Giá giảm dần</option>
+                        </select>
+                    </div>
+                </div>
+
+                {searchTerm && (
+                    <p className="search-results">
+                        Tìm thấy {totalElements} sản phẩm
+                    </p>
+                )}
+
+                <div className="products-grid">
+                    {products.map(product => (
+                        <div key={product.id} className="product-card">
+                            <Link 
+                                to={`/product/${product.id}`} 
+                                className="product-link tooltip" 
+                                data-tooltip={product.description}
+                            >
+                                <div className="product-image-container">
+                                    <img 
+                                        src={`http://localhost:8080/uploads/${product.imageUrls[0]}`} 
+                                        alt={product.name}
+                                        onError={(e) => {
+                                            e.target.src = 'https://via.placeholder.com/300';
+                                        }}
+                                    />
+                                </div>
+                            </Link>
+                            <div className="product-info">
+                                <Link 
+                                    to={`/product/${product.id}`} 
+                                    className="product-name-link tooltip" 
+                                    data-tooltip={product.description}
+                                >
+                                    <h3>{product.name}</h3>
+                                </Link>
+                                <span className="product-category">{product.category}</span>
+                                <div className="product-status">
+                                    {product.quantity > 0 ? (
+                                        <span className="in-stock">Còn hàng</span>
+                                    ) : (
+                                        <span className="out-of-stock">Hết hàng</span>
+                                    )}
+                                </div>
+                                <p className="product-price">
+                                    {new Intl.NumberFormat('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND'
+                                    }).format(product.price)}
+                                </p>
+                                <div className="product-actions">
+                                    <button 
+                                        className={`action-btn cart-btn ${addingToCart[product.id] ? 'loading' : ''}`}
+                                        onClick={() => handleAddToCart(product.id)}
+                                        disabled={product.quantity < 1 || addingToCart[product.id]}
+                                        title={product.quantity < 1 ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
+                                    >
+                                        <FaShoppingCart />
+                                        {addingToCart[product.id] && <span className="loading-spinner"></span>}
+                                    </button>
+                                    {canEditProduct(product) && (
+                                        <>
+                                            <button 
+                                                className="action-btn edit-btn"
+                                                onClick={() => handleEdit(product.id)}
+                                                title="Sửa sản phẩm"
+                                            >
+                                                <FaEdit />
+                                            </button>
+                                            <button 
+                                                className="action-btn delete-btn"
+                                                onClick={() => handleDelete(product.id)}
+                                                title="Xóa sản phẩm"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
 
-            <div className="pagination">
-                {renderPaginationButtons()}
+                <div className="pagination">
+                    {renderPaginationButtons()}
+                </div>
             </div>
         </div>
     );
