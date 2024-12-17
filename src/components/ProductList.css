@@ -474,6 +474,8 @@
 .sidebar-container {
     width: 250px;
     flex-shrink: 0;
+    margin-left: -200px;
+    margin-top: 150px;
 }
 
 .filter-sidebar {
