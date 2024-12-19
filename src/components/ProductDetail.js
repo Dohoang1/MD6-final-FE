@@ -16,6 +16,7 @@ function ProductDetail() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [addingToCart, setAddingToCart] = useState(false);
     const [user, setUser] = useState(null);
+    const [autoSlideInterval, setAutoSlideInterval] = useState(null);
 
     useEffect(() => {
         fetchProductDetail();
@@ -27,6 +28,20 @@ function ProductDetail() {
             setUser(JSON.parse(userStr));
         }
     }, []);
+
+    useEffect(() => {
+        if (product && product.imageUrls && product.imageUrls.length > 1) {
+            const interval = setInterval(() => {
+                nextImage();
+            }, 4000);
+            setAutoSlideInterval(interval);
+        }
+        return () => {
+            if (autoSlideInterval) {
+                clearInterval(autoSlideInterval);
+            }
+        };
+    }, [product]);
 
     const canEditProduct = (product) => {
         if (!user) return false;
@@ -98,15 +113,31 @@ function ProductDetail() {
     };
 
     const nextImage = () => {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+            setAutoSlideInterval(null);
+        }
         setCurrentImageIndex((prev) => 
-            prev === product.imageUrls.length - 1 ? 0 : prev + 1
+            prev === (product?.imageUrls?.length || 1) - 1 ? 0 : prev + 1
         );
     };
 
-    const previousImage = () => {
+    const prevImage = () => {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+            setAutoSlideInterval(null);
+        }
         setCurrentImageIndex((prev) => 
-            prev === 0 ? product.imageUrls.length - 1 : prev - 1
+            prev === 0 ? (product?.imageUrls?.length || 1) - 1 : prev - 1
         );
+    };
+
+    const goToImage = (index) => {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+            setAutoSlideInterval(null);
+        }
+        setCurrentImageIndex(index);
     };
 
     if (loading) return (
@@ -161,41 +192,50 @@ function ProductDetail() {
                         {/* Left Column - Images */}
                         <div className="product-detail-left">
                             <div className="product-detail-image-container">
-                                <img 
-                                    src={`http://localhost:8080/uploads/${product.imageUrls[currentImageIndex]}`}
-                                    alt={product.name}
-                                    className="main-image"
-                                    onClick={() => setIsModalOpen(true)}
-                                    onError={(e) => {
-                                        e.target.src = 'https://via.placeholder.com/500';
+                                <div 
+                                    className="image-slider"
+                                    style={{
+                                        transform: `translateX(-${currentImageIndex * 100}%)`,
                                     }}
-                                />
-                                {product.imageUrls.length > 1 && (
-                                    <>
-                                        <button 
-                                            className="image-nav-button prev"
-                                            onClick={previousImage}
-                                            title="Ảnh trước"
-                                        >
-                                            <FaChevronLeft />
-                                        </button>
-                                        <button 
-                                            className="image-nav-button next"
-                                            onClick={nextImage}
-                                            title="Ảnh tiếp theo"
-                                        >
-                                            <FaChevronRight />
-                                        </button>
-                                    </>
-                                )}
+                                >
+                                    {product.imageUrls && product.imageUrls.map((url, index) => (
+                                        <img
+                                            key={index}
+                                            src={`http://localhost:8080/uploads/${url}`}
+                                            alt={`${product.name} ${index + 1}`}
+                                            className="slider-image"
+                                            onClick={() => setIsModalOpen(true)}
+                                            onError={(e) => {
+                                                e.target.src = 'https://via.placeholder.com/500';
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="image-navigation">
+                                    <button onClick={prevImage} className="nav-button prev">
+                                        <FaChevronLeft />
+                                    </button>
+                                    <button onClick={nextImage} className="nav-button next">
+                                        <FaChevronRight />
+                                    </button>
+                                </div>
+                                <div className="image-indicators">
+                                    {product.imageUrls && product.imageUrls.map((_, index) => (
+                                        <div
+                                            key={index}
+                                            className={`indicator ${index === currentImageIndex ? 'active' : ''}`}
+                                            onClick={() => goToImage(index)}
+                                        />
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="image-gallery">
-                                {product.imageUrls.map((url, index) => (
+                                {product.imageUrls && product.imageUrls.map((url, index) => (
                                     <div 
                                         key={index}
                                         className={`gallery-item ${index === currentImageIndex ? 'active' : ''}`}
-                                        onClick={() => setCurrentImageIndex(index)}
+                                        onClick={() => goToImage(index)}
                                     >
                                         <img 
                                             src={`http://localhost:8080/uploads/${url}`}
@@ -286,14 +326,17 @@ function ProductDetail() {
                                 src={`http://localhost:8080/uploads/${product.imageUrls[currentImageIndex]}`}
                                 alt={product.name}
                                 onClick={(e) => e.stopPropagation()}
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/800';
+                                }}
                             />
-                            {product.imageUrls.length > 1 && (
+                            {product.imageUrls && product.imageUrls.length > 1 && (
                                 <>
                                     <button 
                                         className="modal-nav-button prev"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            previousImage();
+                                            prevImage();
                                         }}
                                     >
                                         <FaChevronLeft />
