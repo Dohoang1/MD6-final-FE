@@ -90,6 +90,12 @@ function Layout({ children }) {
                                         </button>
                                         {showDropdown && (
                                             <div className="dropdown-menu">
+                                                <Link 
+                                                    to="/profile" 
+                                                    onClick={() => setShowDropdown(false)}
+                                                >
+                                                    Thông tin cá nhân
+                                                </Link>
                                                 {user.role === 'PROVIDER' && (
                                                     <Link 
                                                         to="/register-product" 
@@ -112,6 +118,12 @@ function Layout({ children }) {
                                                         >
                                                             Quản lý đơn hàng
                                                         </Link>
+                                                        <Link 
+                                                            to="/admin/manage-accounts" 
+                                                            onClick={() => setShowDropdown(false)}
+                                                        >
+                                                            Quản lý tài khoản
+                                                        </Link>
                                                     </>
                                                 )}
                                                 {(user.role === 'ADMIN' || user.role === 'SALESPERSON') && (
@@ -122,12 +134,6 @@ function Layout({ children }) {
                                                         Thêm sản phẩm
                                                     </Link>
                                                 )}
-                                                <Link 
-                                                    to="/profile" 
-                                                    onClick={() => setShowDropdown(false)}
-                                                >
-                                                    Thông tin cá nhân
-                                                </Link>
                                                 <button 
                                                     onClick={() => {
                                                         handleLogout();

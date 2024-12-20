@@ -1,0 +1,114 @@
+.account-management {
+    padding: 24px;
+}
+
+.account-management h2 {
+    margin-bottom: 24px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.action-button {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    padding: 0 !important;
+}
+
+.action-button .anticon {
+    font-size: 16px;
+}
+
+/* Nút xem */
+.view-button {
+    background-color: #1890ff !important;
+    border-color: #1890ff !important;
+}
+
+.view-button .anticon {
+    color: white !important;
+}
+
+.view-button:hover {
+    background-color: #40a9ff !important;
+    border-color: #40a9ff !important;
+}
+
+/* Nút sửa */
+.edit-button {
+    color: #595959 !important;
+    border-color: #d9d9d9 !important;
+}
+
+.edit-button:hover {
+    color: #1890ff !important;
+    border-color: #1890ff !important;
+}
+
+/* Nút kích hoạt */
+.enable-button {
+    background-color: #52c41a !important;
+    border-color: #52c41a !important;
+}
+
+.enable-button .anticon {
+    color: white !important;
+}
+
+.enable-button:hover {
+    background-color: #73d13d !important;
+    border-color: #73d13d !important;
+}
+
+/* Nút vô hiệu hóa */
+.disable-button {
+    color: #595959 !important;
+    border-color: #d9d9d9 !important;
+}
+
+.disable-button:hover {
+    color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+}
+
+/* Nút xóa */
+.delete-button {
+    background-color: #ff4d4f !important;
+    border-color: #ff4d4f !important;
+}
+
+.delete-button .anticon {
+    color: white !important;
+}
+
+.delete-button:hover {
+    background-color: #ff7875 !important;
+    border-color: #ff7875 !important;
+}
+
+.status-active {
+    color: #52c41a;
+    font-weight: 500;
+}
+
+.status-inactive {
+    color: #ff4d4f;
+    font-weight: 500;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .account-management {
+        padding: 16px;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+}
